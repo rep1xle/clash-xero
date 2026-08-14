@@ -53,6 +53,12 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin:
 }
 .whoami input:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:transparent;}
 .save-pill{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);min-width:70px;}
+.copy-link{
+  background:none;border:1px solid var(--border);color:var(--text-muted);
+  font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 10px;border-radius:var(--radius);
+  cursor:pointer;white-space:nowrap;transition:border-color .15s ease,color .15s ease;
+}
+.copy-link:hover{border-color:var(--gold-dim);color:var(--text);}
 
 .tabs{display:flex;gap:2px;overflow-x:auto;margin-bottom:22px;border-bottom:1px solid var(--border);}
 .tab{
@@ -83,6 +89,8 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin:
 .card.state-have{border-color:var(--have-dim);}
 .card.state-need{border-color:var(--need-dim);}
 .card.state-owned{border-color:var(--owned-dim);}
+.card.state-neutral{border-color:var(--border);}
+.card.state-neutral .owned-label{color:var(--text-dim);}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
 .card-num{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim);letter-spacing:.03em;}
 .owned-label{
@@ -127,6 +135,15 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin:
   font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--text);
   border-left:1px solid var(--border);border-right:1px solid var(--border);
 }
+
+.card-actions{display:flex;flex-direction:column;gap:8px;}
+.need-btn{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);
+  color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.03em;padding:7px 0;cursor:pointer;transition:border-color .15s ease,color .15s ease,background .15s ease;
+}
+.need-btn:hover{border-color:var(--need-dim);color:var(--text);}
+.need-btn.active{background:var(--need-dim);border-color:var(--need);color:var(--text);}
 
 .match-list{display:flex;flex-direction:column;gap:8px;}
 .match-row{
