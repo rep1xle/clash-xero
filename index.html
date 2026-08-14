@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Ledger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="wrap">
+
+        <header>
+            <div class="brand">
+                <span class="eyebrow">Clash of Cards &middot; Trading Board</span>
+                <h1 id="clanTitle">Your Clan</h1>
+                <button class="clan-edit" id="editClanBtn">rename clan</button>
+            </div>
+            <div class="whoami">
+                <label for="nameInput">You are</label>
+                <input id="nameInput" type="text" placeholder="your in-game name" maxlength="24">
+                <span class="save-pill" id="savePill"></span>
+            </div>
+        </header>
+
+        <div class="progress-row" id="progressRow" style="display:none;">
+            <span class="progress-label" id="progressLabel">0 / 0 cards</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+        </div>
+
+        <nav class="tabs" id="tabs"></nav>
+        <div id="panel"></div>
+
+        <footer>
+            <span>Data is shared with everyone using this board.</span>
+            <span id="lastSync">not synced yet</span>
+        </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
