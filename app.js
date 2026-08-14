@@ -41,16 +41,37 @@ function getCount(cards, cardId){
   return 0;
 }
 
+/* an explicit "I checked and I need this" flag, separate from count.
+   Only meaningful while count is 0 — owning a card always wins. */
+function getNeedFlag(needFlags, cardId){
+  return !!(needFlags && needFlags[cardId]);
+}
+
 /* ---------------- state ---------------- */
 let clanName = 'Your Clan';
-let myName = localStorage.getItem('cardLedgerMyName') || '';
+const urlParams = new URLSearchParams(window.location.search);
+let myName = urlParams.get('me') || localStorage.getItem('cardLedgerMyName') || '';
 let myCards = {};
+let myNeedFlags = {};
 let members = {};
 let cardImages = {};
 let activeTab = 'elixir';
 let saveTimer = null;
+let pendingUpdates = {};
 
 const db = firebase.database();
+
+/* ---------------- shareable identity link ----------------
+   Your name lives in the URL (?me=YourName) so opening the same
+   link on another device points at the same member record instead
+   of relying on typing the name identically twice. */
+function syncNameToUrl(name){
+  const url = new URL(window.location.href);
+  if(name) url.searchParams.set('me', name); else url.searchParams.delete('me');
+  history.replaceState(null, '', url.toString());
+}
+if(myName) localStorage.setItem('cardLedgerMyName', myName);
+syncNameToUrl(myName);
 
 const els = {
   clanTitle: document.getElementById('clanTitle'),
@@ -74,7 +95,10 @@ db.ref('clanName').on('value', snap=>{
 
 db.ref('members').on('value', snap=>{
   members = snap.val() || {};
-  if(myName && members[myName]) myCards = members[myName].cards || {};
+  if(myName && members[myName]){
+    myCards = members[myName].cards || {};
+    myNeedFlags = members[myName].needFlags || {};
+  }
   renderTabs();
   renderPanel();
   updateProgress();
@@ -94,10 +118,23 @@ els.nameInput.addEventListener('input', ()=>{
   nameDebounce = setTimeout(()=>{
     if(!myName) return;
     localStorage.setItem('cardLedgerMyName', myName);
+    syncNameToUrl(myName);
     myCards = (members[myName] && members[myName].cards) || {};
+    myNeedFlags = (members[myName] && members[myName].needFlags) || {};
     renderPanel();
     updateProgress();
   }, 400);
+});
+
+/* ---------------- copy identity link ---------------- */
+document.getElementById('copyLinkBtn').addEventListener('click', ()=>{
+  if(!requireName()) return;
+  navigator.clipboard.writeText(window.location.href).then(()=>{
+    const btn = document.getElementById('copyLinkBtn');
+    const original = btn.textContent;
+    btn.textContent = 'copied!';
+    setTimeout(()=>{ btn.textContent = original; }, 1500);
+  });
 });
 
 /* ---------------- clan rename ---------------- */
@@ -135,32 +172,68 @@ function updateProgress(){
 }
 
 /* ---------------- card count ---------------- */
+function requireName(){
+  if(myName) return true;
+  els.nameInput.focus();
+  els.nameInput.style.borderColor = 'var(--need)';
+  setTimeout(()=>{ els.nameInput.style.borderColor = ''; }, 900);
+  return false;
+}
+
 function changeCardCount(cardId, delta){
-  if(!myName){
-    els.nameInput.focus();
-    els.nameInput.style.borderColor = 'var(--need)';
-    setTimeout(()=>{ els.nameInput.style.borderColor = ''; }, 900);
-    return;
-  }
+  if(!requireName()) return;
   const current = getCount(myCards, cardId);
   const next = Math.max(0, current + delta);
   if(next === 0) delete myCards[cardId]; else myCards[cardId] = next;
+  queueUpdate(`members/${myName}/cards/${cardId}`, next === 0 ? null : next);
+  // owning a card (or dropping back to 0) always overrides a "need it" flag
+  if(next >= 1 && myNeedFlags[cardId]){
+    delete myNeedFlags[cardId];
+    queueUpdate(`members/${myName}/needFlags/${cardId}`, null);
+  }
   renderPanel();
   updateProgress();
   scheduleSave();
 }
 
+/* explicit "I checked and I need this" toggle, independent of the count.
+   Only actionable while count is 0 - the button is hidden otherwise. */
+function toggleNeedFlag(cardId){
+  if(!requireName()) return;
+  if(getCount(myCards, cardId) >= 1) return;
+  const flagged = getNeedFlag(myNeedFlags, cardId);
+  if(flagged) delete myNeedFlags[cardId]; else myNeedFlags[cardId] = true;
+  queueUpdate(`members/${myName}/needFlags/${cardId}`, flagged ? null : true);
+  renderPanel();
+  updateProgress();
+  scheduleSave();
+}
+
+/* ---------------- saving ----------------
+   Writes only touch the specific card/need paths that changed (not the
+   whole member record), so two devices editing at the same time merge
+   instead of one overwriting the other's changes. */
+function queueUpdate(path, value){
+  pendingUpdates[path] = value;
+}
+
 function scheduleSave(){
   els.savePill.textContent = 'saving\u2026';
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(()=>{
-    db.ref(`members/${myName}`).set({ cards: myCards, updatedAt: Date.now() })
-      .then(()=>{
-        els.savePill.textContent = 'saved';
-        setTimeout(()=>{ els.savePill.textContent=''; }, 1500);
-      })
-      .catch(()=>{ els.savePill.textContent = 'save failed'; });
-  }, 500);
+  saveTimer = setTimeout(flushSave, 500);
+}
+
+function flushSave(){
+  if(!myName || !Object.keys(pendingUpdates).length) return;
+  pendingUpdates[`members/${myName}/updatedAt`] = Date.now();
+  const updates = pendingUpdates;
+  pendingUpdates = {};
+  db.ref().update(updates)
+    .then(()=>{
+      els.savePill.textContent = 'saved';
+      setTimeout(()=>{ els.savePill.textContent=''; }, 1500);
+    })
+    .catch(()=>{ els.savePill.textContent = 'save failed'; });
 }
 
 /* ---------------- card images (URL-based) ---------------- */
@@ -180,7 +253,9 @@ function renderCardGrid(setId){
   grid.className = 'grid';
   cards.forEach(card=>{
     const count = getCount(myCards, card.id);
-    const stateClass = count === 0 ? 'state-need' : count === 1 ? 'state-owned' : 'state-have';
+    const needed = getCount(myCards, card.id) === 0 && getNeedFlag(myNeedFlags, card.id);
+    const stateClass = count >= 2 ? 'state-have' : count === 1 ? 'state-owned' : needed ? 'state-need' : 'state-neutral';
+    const label = count >= 2 ? 'extra to trade' : count === 1 ? 'owned \u00b7 1' : needed ? 'need it' : 'not logged';
     const img = cardImages[card.id];
     const el = document.createElement('div');
     el.className = `card ${stateClass}`;
@@ -191,19 +266,23 @@ function renderCardGrid(setId){
       </div>
       <div class="card-top">
         <span class="card-num">${String(card.num).padStart(2,'0')} / ${String(card.total).padStart(2,'0')}</span>
-        <span class="owned-label">${count === 0 ? 'need it' : count === 1 ? 'owned \u00b7 1' : 'extra to trade'}</span>
+        <span class="owned-label">${label}</span>
       </div>
       <div class="card-name">${card.name}</div>
-      <div class="stepper">
-        <button class="step-btn" data-delta="-1" aria-label="Decrease count">\u2013</button>
-        <span class="step-count">${count}</span>
-        <button class="step-btn" data-delta="1" aria-label="Increase count">+</button>
+      <div class="card-actions">
+        <div class="stepper">
+          <button class="step-btn" data-delta="-1" aria-label="Decrease count">\u2013</button>
+          <span class="step-count">${count}</span>
+          <button class="step-btn" data-delta="1" aria-label="Increase count">+</button>
+        </div>
+        <button class="need-btn ${needed ? 'active' : ''}" ${count >= 1 ? 'style="display:none;"' : ''}>${needed ? '\u2713 Marked as needed' : 'Need it'}</button>
       </div>
     `;
     el.querySelector('.card-art').addEventListener('click', ()=> setCardImage(card.id));
     el.querySelectorAll('.step-btn').forEach(btn=>{
       btn.addEventListener('click', ()=> changeCardCount(card.id, Number(btn.dataset.delta)));
     });
+    el.querySelector('.need-btn').addEventListener('click', ()=> toggleNeedFlag(card.id));
     grid.appendChild(el);
   });
   return grid;
@@ -219,7 +298,7 @@ function renderMatches(){
     Object.entries(members).forEach(([name, data])=>{
       const count = getCount(data.cards, card.id);
       if(count >= 2) haves.push(name);
-      if(count === 0) needs.push(name);
+      if(count === 0 && getNeedFlag(data.needFlags, card.id)) needs.push(name);
     });
     if(haves.length && needs.length) rows.push({ card, haves, needs });
   });
@@ -257,10 +336,12 @@ function renderMembers(){
   names.forEach(name=>{
     const data = members[name];
     const cards = data.cards || {};
+    const needFlags = data.needFlags || {};
     const counts = ALL_CARDS.map(c => getCount(cards, c.id));
     const ownedCount = counts.filter(n => n >= 1).length;
     const extraCount = counts.filter(n => n >= 2).length;
-    const needCount = counts.filter(n => n === 0).length;
+    const needCount = ALL_CARDS.filter(c => getCount(cards, c.id) === 0 && getNeedFlag(needFlags, c.id)).length;
+    const unloggedCount = TOTAL_CARDS - ownedCount - needCount;
     const pct = Math.round((ownedCount/TOTAL_CARDS)*100);
     const row = document.createElement('div');
     row.className = 'member-row';
@@ -271,6 +352,7 @@ function renderMembers(){
         <span>${ownedCount}/${TOTAL_CARDS} owned</span>
         <b class="have">${extraCount} extra</b>
         <b class="need">${needCount} needed</b>
+        <span>${unloggedCount} unlogged</span>
       </span>
     `;
     wrap.appendChild(row);
