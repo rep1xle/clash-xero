@@ -1,26 +1,32 @@
 /* ---------------- card catalog ---------------- */
 const SETS = [
   { id:'elixir', label:'Elixir', reward:'Rune of Elixir', cards:[
-    'Barbarian','Archer','Giant','Goblin','Wall Breaker','Balloon',
-    'Wizard','Healer','Dragon','P.E.K.K.A','Baby Dragon','Electro Dragon'
+    'Barbarian','Archer','Giant','Goblin','Wall Breaker','Balloon','Wizard','Healer',
+    'Dragon','P.E.K.K.A','Baby Dragon','Miner','Electro Dragon','Yeti',
+    'Dragon Rider','Electro Titan','Root Rider','Thrower','Meteor Golem'
   ]},
   { id:'dark', label:'Dark Elixir', reward:'Rune of Dark Elixir', cards:[
-    'Minion','Hog Rider','Valkyrie','Golem','Witch','Lava Hound',
-    'Bowler','Ice Golem','Headhunter','Druid'
+    'Minion','Hog Rider','Valkyrie','Golem','Witch','Lava Hound','Bowler','Ice Golem',
+    'Headhunter','Apprentice Warden','Druid','Furnace','Ruin Witch'
   ]},
   { id:'builder', label:'Builder Base', reward:'Rune of Gold', cards:[
     'Raged Barbarian','Sneaky Archer','Boxer Giant','Beta Minion','Bomber',
-    'Baby Dragon (BB)','Cannon Cart','Night Witch','Drop Ship','Super P.E.K.K.A'
+    'Baby Dragon (BB)','Cannon Cart','Night Witch','Drop Ship','Power P.E.K.K.A','Hog Glider'
   ]},
   { id:'super', label:'Super Troop', reward:'Legendary Chest', cards:[
-    'Super Barbarian','Super Archer','Sneaky Goblin','Super Wall Breaker','Rocket Balloon',
-    'Super Wizard','Inferno Dragon','Super Minion','Super Valkyrie','Super Bowler'
+    'Super Barbarian','Super Archer','Super Giant','Sneaky Goblin','Super Wall Breaker',
+    'Rocket Balloon','Super Wizard','Super Dragon','Inferno Dragon','Super Miner',
+    'Super Yeti','Super Minion','Super Hog Rider','Super Valkyrie','Super Witch',
+    'Ice Hound','Super Bowler'
   ]}
 ];
+function slugify(name){
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
 const ALL_CARDS = [];
 SETS.forEach(set=>{
   set.cards.forEach((name,i)=>{
-    ALL_CARDS.push({ id:`${set.id}-${i}`, name, setId:set.id, setLabel:set.label, num:i+1, total:set.cards.length });
+    ALL_CARDS.push({ id:`${set.id}-${slugify(name)}`, name, setId:set.id, setLabel:set.label, num:i+1, total:set.cards.length });
   });
 });
 const TOTAL_CARDS = ALL_CARDS.length;
