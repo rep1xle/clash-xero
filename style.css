@@ -134,7 +134,9 @@ h1 {
   border-radius: var(--radius);
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 .copy-link:hover {
   border-color: var(--gold-dim);
@@ -160,7 +162,9 @@ h1 {
   cursor: pointer;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 .tab:hover {
   color: var(--text);
@@ -347,7 +351,9 @@ h1 {
   font-size: 15px;
   cursor: pointer;
   padding: 6px 0;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 .step-btn:hover {
   background: var(--border);
@@ -383,7 +389,10 @@ h1 {
   letter-spacing: 0.03em;
   padding: 7px 0;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 .need-btn:hover {
   border-color: var(--need-dim);
@@ -392,6 +401,38 @@ h1 {
 .need-btn.active {
   background: var(--need-dim);
   border-color: var(--need);
+  color: var(--text);
+}
+
+.filter-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-chip {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.filter-chip:hover {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+.filter-chip.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
   color: var(--text);
 }
 
@@ -456,6 +497,73 @@ h1 {
   text-align: center;
   border: 1px dashed var(--border);
   border-radius: var(--radius);
+}
+
+.tag {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+.tag-claimed {
+  background: var(--need-dim);
+  color: var(--need);
+}
+.tag-requested {
+  background: var(--owned-dim);
+  color: var(--owned);
+}
+
+.row-action {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.chip-btn {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 6px 11px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.chip-btn:hover {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+.chip-btn.done-btn,
+.chip-btn.request-btn {
+  border-color: var(--have-dim);
+  color: var(--have);
+}
+.chip-btn.done-btn:hover,
+.chip-btn.request-btn:hover {
+  background: var(--have-dim);
+  color: var(--text);
+}
+.chip-btn.decline-btn,
+.chip-btn.cancel-btn {
+  border-color: var(--need-dim);
+  color: var(--need);
+}
+.chip-btn.decline-btn:hover,
+.chip-btn.cancel-btn:hover {
+  background: var(--need-dim);
+  color: var(--text);
 }
 
 .mytrades-section {
@@ -536,6 +644,9 @@ h1 {
 }
 .member-row .mstats b.need {
   color: var(--need);
+}
+.member-row .mstats .mtime {
+  color: var(--text-dim);
 }
 
 footer {
