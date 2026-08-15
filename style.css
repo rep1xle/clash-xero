@@ -24,6 +24,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 body {
   background: var(--bg);
@@ -92,6 +94,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .whoami label {
   font-size: 12px;
@@ -106,7 +109,9 @@ h1 {
   border-radius: var(--radius);
   font-family: "Inter", sans-serif;
   font-size: 14px;
-  width: 150px;
+  flex: 1 1 130px;
+  min-width: 0;
+  max-width: 220px;
 }
 .whoami input:focus {
   outline: 2px solid var(--focus);
@@ -129,7 +134,9 @@ h1 {
   border-radius: var(--radius);
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 .copy-link:hover {
   border-color: var(--gold-dim);
@@ -155,7 +162,9 @@ h1 {
   cursor: pointer;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 .tab:hover {
   color: var(--text);
@@ -177,9 +186,11 @@ h1 {
   align-items: center;
   gap: 12px;
   margin-bottom: 22px;
+  flex-wrap: wrap;
 }
 .progress-track {
   flex: 1;
+  min-width: 120px;
   height: 4px;
   background: var(--surface-2);
   border-radius: 2px;
@@ -194,7 +205,6 @@ h1 {
   font-family: "JetBrains Mono", monospace;
   font-size: 12px;
   color: var(--text-muted);
-  white-space: nowrap;
 }
 
 .grid {
@@ -341,7 +351,9 @@ h1 {
   font-size: 15px;
   cursor: pointer;
   padding: 6px 0;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 .step-btn:hover {
   background: var(--border);
@@ -377,7 +389,10 @@ h1 {
   letter-spacing: 0.03em;
   padding: 7px 0;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 .need-btn:hover {
   border-color: var(--need-dim);
@@ -386,6 +401,38 @@ h1 {
 .need-btn.active {
   background: var(--need-dim);
   border-color: var(--need);
+  color: var(--text);
+}
+
+.filter-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-chip {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.filter-chip:hover {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+.filter-chip.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
   color: var(--text);
 }
 
@@ -403,13 +450,15 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 8px 12px;
   flex-wrap: wrap;
 }
 .match-row .mname {
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   font-size: 14.5px;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 .match-row .mset {
   font-family: "JetBrains Mono", monospace;
@@ -423,8 +472,14 @@ h1 {
   font-size: 12.5px;
   color: var(--text-muted);
   display: flex;
-  gap: 14px;
+  gap: 6px 14px;
   flex-wrap: wrap;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.match-people span {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 .match-people b.have {
   color: var(--have);
@@ -442,6 +497,73 @@ h1 {
   text-align: center;
   border: 1px dashed var(--border);
   border-radius: var(--radius);
+}
+
+.tag {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+.tag-claimed {
+  background: var(--need-dim);
+  color: var(--need);
+}
+.tag-requested {
+  background: var(--owned-dim);
+  color: var(--owned);
+}
+
+.row-action {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.chip-btn {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 6px 11px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.chip-btn:hover {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+.chip-btn.done-btn,
+.chip-btn.request-btn {
+  border-color: var(--have-dim);
+  color: var(--have);
+}
+.chip-btn.done-btn:hover,
+.chip-btn.request-btn:hover {
+  background: var(--have-dim);
+  color: var(--text);
+}
+.chip-btn.decline-btn,
+.chip-btn.cancel-btn {
+  border-color: var(--need-dim);
+  color: var(--need);
+}
+.chip-btn.decline-btn:hover,
+.chip-btn.cancel-btn:hover {
+  background: var(--need-dim);
+  color: var(--text);
 }
 
 .mytrades-section {
@@ -486,15 +608,18 @@ h1 {
   padding: 12px 14px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px 14px;
+  flex-wrap: wrap;
 }
 .member-row .mname {
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
-  min-width: 110px;
+  min-width: 90px;
+  flex-shrink: 0;
 }
 .member-row .mtrack {
-  flex: 1;
+  flex: 1 1 80px;
+  min-width: 60px;
   height: 4px;
   background: var(--surface-2);
   border-radius: 2px;
@@ -509,14 +634,19 @@ h1 {
   font-size: 11.5px;
   color: var(--text-muted);
   display: flex;
-  gap: 10px;
-  white-space: nowrap;
+  gap: 6px 10px;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+  justify-content: flex-start;
 }
 .member-row .mstats b.have {
   color: var(--have);
 }
 .member-row .mstats b.need {
   color: var(--need);
+}
+.member-row .mstats .mtime {
+  color: var(--text-dim);
 }
 
 footer {
@@ -532,11 +662,52 @@ footer {
   gap: 8px;
 }
 
-@media (max-width: 520px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+@media (max-width: 640px) {
+  .wrap {
+    padding: 20px 14px 60px;
   }
   header {
     align-items: flex-start;
+    gap: 14px;
+  }
+  h1 {
+    font-size: 23px;
+  }
+  .whoami {
+    width: 100%;
+  }
+  .whoami input {
+    max-width: none;
+  }
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+  .card-top {
+    flex-wrap: wrap;
+  }
+  .mytrades-title {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 400px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tab {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+  .match-row {
+    padding: 10px 12px;
+  }
+  .member-row .mname {
+    min-width: 0;
+    flex-basis: 60%;
+  }
+  footer {
+    flex-direction: column;
+    gap: 4px;
   }
 }
